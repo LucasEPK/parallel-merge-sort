@@ -59,7 +59,7 @@ void mergeSort(int array[],int begin, int end){
         return;
     }
     
-    // Caso recursivo
+    // Caso recursivoo
     int mid = (begin + end) / 2;
     mergeSort(array,begin,mid);
     mergeSort(array,mid + 1, end);
