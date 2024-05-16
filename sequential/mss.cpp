@@ -1,3 +1,18 @@
+/*
+Trabajo Final Integrador - Versión secuencial de Merge Sort
+- Integrantes
+    - Moyano, Lucas
+    - Yornet de Rosas, Agustín
+- Asignatura: Programación Paralela y Distribuida 2024
+- Fecha: 16/05/2024
+- Etapa: Versión Secuencial y Análisis de Paralelización
+- Compilación:
+    $ gcc -o [nombre_ejecutable] mss.cpp
+    $ gcc -o mss mss.cpp
+- Ejecución:
+    $ ./mss
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -59,7 +74,7 @@ void mergeSort(int array[],int begin, int end){
         return;
     }
     
-    // Caso recursivoo
+    // Caso recursivo
     int mid = (begin + end) / 2;
     mergeSort(array,begin,mid);
     mergeSort(array,mid + 1, end);
@@ -67,16 +82,16 @@ void mergeSort(int array[],int begin, int end){
 }
 
 void printArray(int array[], int size){
-    
+    printf("[ ");
     for (int i=0;i<size;i++){
-        printf("%d -> ",array[i]);
+        printf("%d ",array[i]);
     }
-    printf("\n");
+    printf("]\n");
 }
 
 int main(){
 
-    int inputArray[] = {6};
+    int inputArray[] = {6,13,8,5,4,9,11};
     int sizeInputArray = sizeof(inputArray) / sizeof(inputArray[0]); // 20bytes:4bytes = 5
 
     printArray(inputArray,sizeInputArray);
