@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <array>
+#include <math.h>
 #include <mpi.h>
 
 void merge(int array[], int begin, int mid, int end){
@@ -71,7 +72,7 @@ int *initRandomNums(int size){
     int *randomArray = (int *)malloc(sizeof(int)* size);
     int i;
     for (i = 0; i < size; i++) {
-        randomArray[i] = (((i+1) * 3) % size) + 1;
+        randomArray[i] = ((((i+1) * 3) % size) + 1)*2;
     }
     return randomArray;
 }
@@ -84,6 +85,14 @@ void printArray(int array[], int size)
         printf("%d ", array[i]);
     }
     printf("]\n");
+}
+
+void concatenateArrays(int array1[], int array2[], int arrayResult[], int size) {
+
+    for(int i=0; i<size; i++){
+        arrayResult[i] = array1[i];
+        arrayResult[size + i] = array2[i];
+    }
 }
 
 int main(int argc, char **argv)
@@ -120,6 +129,55 @@ int main(int argc, char **argv)
     mergeSort(subArray,0,sendCount - 1);
     printf("Soy el proceso %d y ordené el array: ", rank);
     printArray(subArray, sendCount);
+
+    int totalLevels = round(log2(size));
+    int actualLevel = 0;
+    bool isFinished = false;
+
+    int actualSubarraySize = sendCount;
+    int *arrayBuffer;
+    int rankSource;
+    int rankDest;
+    int *arrayResult;
+
+    while( !isFinished){
+        if(rank%(int)pow(2, actualLevel+1) == 0){ // Nodo que recibe el array del otro proceso
+            arrayBuffer =  (int *)malloc(actualSubarraySize * sizeof(int));// Acá asignamos el tamaño al array
+            rankSource = rank+(int)pow(2, actualLevel);
+            MPI_Recv(arrayBuffer, actualSubarraySize, MPI_INT, rankSource, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            printf("soy el rango %d y recibo el array : \n", rank);
+            printArray(arrayBuffer, actualSubarraySize);
+
+            // Ahora concatenamos el array recibido y el subarray que ordenamos
+            arrayResult = (int *)malloc(actualSubarraySize*2*sizeof(int));
+            concatenateArrays(subArray, arrayBuffer, arrayResult, actualSubarraySize); // concatenamos los primeros dos arrays
+
+            merge(arrayResult, 0, actualSubarraySize-1 ,actualSubarraySize*2-1);
+            printf("arrayResult en el rank %d: \n", rank);
+            printArray(arrayResult, actualSubarraySize*2);
+            subArray = (int *)malloc(actualSubarraySize*2*sizeof(int));
+            subArray = arrayResult;
+            printf("subArray en el rank %d: \n", rank);
+            printArray(subArray, actualSubarraySize*2);
+        } else { // Nodo que envia el array al otro proceso
+            rankDest = rank - (int)pow(2, actualLevel);
+            MPI_Send(subArray, actualSubarraySize, MPI_INT,rankDest, 0, MPI_COMM_WORLD);
+            isFinished = true;
+        }
+
+
+
+        if(actualLevel+1 == totalLevels){
+            isFinished = true;
+        }
+        actualLevel+=1;
+        actualSubarraySize *= 2; // tamaño del buffer actual
+    }
+
+    if(rank==0){
+        printf("El resultado final es:\n");
+        printArray(subArray, actualSubarraySize);
+    }
 
     MPI_Finalize();
     return 0;
