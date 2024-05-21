@@ -2,3 +2,5 @@
 .idea
 CMakeLists.txt
 cmake-build-debug
+*.json
+.vscode/*.json
