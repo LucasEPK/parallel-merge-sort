@@ -18,7 +18,8 @@ Trabajo Final Integrador - Versión Paralela de Merge Sort
 #include <math.h>
 #include <mpi.h>
 
-void merge(int array[], int begin, int mid, int end){
+void merge(int array[], int begin, int mid, int end)
+{
     // Obtengo tamaño de subarreglos izq y der
     int sizeLeftArray = mid - begin + 1;
     int sizeRightArray = end - mid;
@@ -26,66 +27,84 @@ void merge(int array[], int begin, int mid, int end){
     int leftArray[sizeLeftArray];
     int rightArray[sizeRightArray];
 
-    // Copio el contenido del arreglo en el subarreglo izq 
-    for (int i=0;i<sizeLeftArray;i++){
+    // Copio el contenido del arreglo en el subarreglo izq
+    for (int i = 0; i < sizeLeftArray; i++)
+    {
         leftArray[i] = array[begin + i];
     }
 
-    // Copio el contenido del arreglo en el subarreglo der 
-    for (int j=0;j<sizeRightArray;j++){
+    // Copio el contenido del arreglo en el subarreglo der
+    for (int j = 0; j < sizeRightArray; j++)
+    {
         rightArray[j] = array[mid + 1 + j];
     }
 
-    int leftIndex = 0; int rightIndex = 0; int arrayIndex = begin;
-    int actualLeftNum; int actualRightNum;
+    int leftIndex = 0;
+    int rightIndex = 0;
+    int arrayIndex = begin;
+    int actualLeftNum;
+    int actualRightNum;
 
-    while (leftIndex < sizeLeftArray && rightIndex < sizeRightArray) {
+    while (leftIndex < sizeLeftArray && rightIndex < sizeRightArray)
+    {
         actualLeftNum = leftArray[leftIndex];
         actualRightNum = rightArray[rightIndex];
-        if (actualLeftNum <= actualRightNum) {
+        if (actualLeftNum <= actualRightNum)
+        {
             array[arrayIndex] = actualLeftNum;
             leftIndex++;
-        } else {
+        }
+        else
+        {
             array[arrayIndex] = actualRightNum;
             rightIndex++;
         }
         arrayIndex++;
     }
 
-    if (leftIndex >= sizeLeftArray) {
+    if (leftIndex >= sizeLeftArray)
+    {
         while (rightIndex < sizeRightArray)
         {
             array[arrayIndex] = rightArray[rightIndex];
-            rightIndex++; arrayIndex++;
+            rightIndex++;
+            arrayIndex++;
         }
-    } else {
+    }
+    else
+    {
         while (leftIndex < sizeLeftArray)
         {
             array[arrayIndex] = leftArray[leftIndex];
-            leftIndex++; arrayIndex++;
+            leftIndex++;
+            arrayIndex++;
         }
     }
 }
 
-void mergeSort(int array[],int begin, int end){
+void mergeSort(int array[], int begin, int end)
+{
 
     // Caso base
-    if (begin == end) {
+    if (begin == end)
+    {
         return;
     }
-    
+
     // Caso recursivo
     int mid = (begin + end) / 2;
-    mergeSort(array,begin,mid);
-    mergeSort(array,mid + 1, end);
-    merge(array,begin,mid,end);
+    mergeSort(array, begin, mid);
+    mergeSort(array, mid + 1, end);
+    merge(array, begin, mid, end);
 }
 
-int *initRandomNums(int size){
-    int *randomArray = (int *)malloc(sizeof(int)* size);
+int *initRandomNums(int size)
+{
+    int *randomArray = (int *)malloc(sizeof(int) * size);
     int i;
-    for (i = 0; i < size; i++) {
-        randomArray[i] = ((((i+1) * 3) % size) + 1)*2;
+    for (i = 0; i < size; i++)
+    {
+        randomArray[i] = ((((i + 1) * 3) % size) + 1) * 2;
     }
     return randomArray;
 }
@@ -100,9 +119,11 @@ void printArray(int array[], int size)
     printf("]\n");
 }
 
-void concatenateArrays(int array1[], int array2[], int arrayResult[], int size) {
+void concatenateArrays(int array1[], int array2[], int arrayResult[], int size)
+{
 
-    for(int i=0; i<size; i++){
+    for (int i = 0; i < size; i++)
+    {
         arrayResult[i] = array1[i];
         arrayResult[size + i] = array2[i];
     }
@@ -113,83 +134,95 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
 
     int rank;
-    int size;
-    
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int nodeCount;
 
-    int sizeInputArray = 64;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
+
+    int sizeInputArray;
+
+    // Define el tamaño del arreglo inicial en función del argumento
+    if (argv[1] == NULL)
+    {
+        sizeInputArray = 16 * nodeCount;
+    }
+    else
+    {
+        sizeInputArray = atoi(argv[1]);
+    }
+
+    // Defino el arreglo inicial
     int *inputArray = NULL;
-    int sendCount;
+
+    int subarraySize; // = tamaño de subarreglos
     int *subArray;
 
     if (rank == 0)
     {
+        // Lleno con valores el arreglo inicial
         inputArray = initRandomNums(sizeInputArray);
-        printf("El arreglo global es: "); printArray(inputArray,sizeInputArray);
+        printf("El arreglo global es: ");
+        printArray(inputArray, sizeInputArray);
     }
 
-    sendCount = sizeInputArray / size;
-    subArray = (int *)malloc(sizeof(int)*sendCount);
-
-    MPI_Scatter(inputArray, sendCount, MPI_INT, subArray, sendCount, MPI_INT, 0, MPI_COMM_WORLD);
-
-    printf("Soy el proceso %d y recibí el array: ", rank);
-    printArray(subArray, sendCount);
-
-    MPI_Barrier(MPI_COMM_WORLD); // Para debugging
     
-    mergeSort(subArray,0,sendCount - 1);
-    printf("Soy el proceso %d y ordené el array: ", rank);
-    printArray(subArray, sendCount);
+    subarraySize = sizeInputArray / nodeCount;
+    subArray = (int *)malloc(sizeof(int) * subarraySize);
 
-    int totalLevels = round(log2(size));
+    MPI_Scatter(inputArray, subarraySize, MPI_INT, subArray, subarraySize, MPI_INT, 0, MPI_COMM_WORLD);
+
+    mergeSort(subArray, 0, subarraySize - 1);
+
+    // Cantidad de iteraciones de la última etapa
+    int totalLevels = round(log2(nodeCount));
     int actualLevel = 0;
-    bool isFinished = false;
 
-    int actualSubarraySize = sendCount;
-    int *arrayBuffer;
+
+    int currentSubarraySize = subarraySize;
+    int *recvArray;
+    int *arrayResult;
     int rankSource;
     int rankDest;
-    int *arrayResult;
 
-    while( !isFinished){
-        if(rank%(int)pow(2, actualLevel+1) == 0){ // Nodo que recibe el array del otro proceso
-            arrayBuffer =  (int *)malloc(actualSubarraySize * sizeof(int));// Acá asignamos el tamaño al array
-            rankSource = rank+(int)pow(2, actualLevel);
-            MPI_Recv(arrayBuffer, actualSubarraySize, MPI_INT, rankSource, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            printf("soy el rango %d y recibo el array : \n", rank);
-            printArray(arrayBuffer, actualSubarraySize);
+    bool isFinished = false;
+    while (!isFinished)
+    {
+        if (rank % (int)pow(2, actualLevel + 1) == 0)
+        {                                                                  // Nodo que recibe el array del otro proceso
+            recvArray = (int *)malloc(currentSubarraySize * sizeof(int)); // Acá asignamos el tamaño al array
+            rankSource = rank + (int)pow(2, actualLevel);
+            MPI_Recv(recvArray, currentSubarraySize, MPI_INT, rankSource, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             // Ahora concatenamos el array recibido y el subarray que ordenamos
-            arrayResult = (int *)malloc(actualSubarraySize*2*sizeof(int));
-            concatenateArrays(subArray, arrayBuffer, arrayResult, actualSubarraySize); // concatenamos los primeros dos arrays
+            arrayResult = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
+            concatenateArrays(subArray, recvArray, arrayResult, currentSubarraySize); // concatenamos los primeros dos arrays
 
-            merge(arrayResult, 0, actualSubarraySize-1 ,actualSubarraySize*2-1);
-            printf("arrayResult en el rank %d: \n", rank);
-            printArray(arrayResult, actualSubarraySize*2);
-            subArray = (int *)malloc(actualSubarraySize*2*sizeof(int));
+            merge(arrayResult, 0, currentSubarraySize - 1, currentSubarraySize * 2 - 1);
+
+            subArray = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
+            // Se sobreescribe el subarreglo para utilizarlo en la próxima iteración
             subArray = arrayResult;
-            printf("subArray en el rank %d: \n", rank);
-            printArray(subArray, actualSubarraySize*2);
-        } else { // Nodo que envia el array al otro proceso
+        }
+        else
+        { 
+            // Nodo que envia el array al otro proceso
             rankDest = rank - (int)pow(2, actualLevel);
-            MPI_Send(subArray, actualSubarraySize, MPI_INT,rankDest, 0, MPI_COMM_WORLD);
+            MPI_Send(subArray, currentSubarraySize, MPI_INT, rankDest, 0, MPI_COMM_WORLD);
             isFinished = true;
         }
 
-
-
-        if(actualLevel+1 == totalLevels){
+        if (actualLevel + 1 == totalLevels)
+        {
             isFinished = true;
         }
-        actualLevel+=1;
-        actualSubarraySize *= 2; // tamaño del buffer actual
+        actualLevel += 1;
+        currentSubarraySize *= 2; // tamaño del buffer actual
     }
 
-    if(rank==0){
-        printf("El resultado final es:\n");
-        printArray(subArray, actualSubarraySize);
+    if (rank == 0)
+    {
+        printf("\nEl resultado final es:\n");
+        printArray(subArray, currentSubarraySize);
     }
 
     MPI_Finalize();
