@@ -1,3 +1,16 @@
+/*
+Trabajo Final Integrador - Versión Paralela de Merge Sort
+- Integrantes
+    - Moyano, Lucas
+    - Yornet de Rosas, Agustín
+- Asignatura: Programación Paralela y Distribuida 2024
+- Fecha: 23/05/2024
+- Etapa: Diseño y Desarrollo de la Versión Paralelo/Distribuida
+- Compilación:
+    $ mpic++ -o msp.out msp.cpp
+- Ejecución:
+    $ mpirun -np 4 ./msp.out
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
