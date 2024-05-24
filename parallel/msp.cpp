@@ -129,6 +129,16 @@ void concatenateArrays(int array1[], int array2[], int arrayResult[], int size)
     }
 }
 
+void checkNodeCountAndArraySize(int nodeCount, int arraySize) {
+    // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
+    bool nodesArePowOf2 = trunc(log2((double)nodeCount)) == log2((double)nodeCount);
+    if (arraySize % 2 != 0) {
+        throw std::invalid_argument("ERROR: el tamaño del array no es par");
+    } else if (!nodesArePowOf2) {
+        throw std::invalid_argument("ERROR: la cantidad de nodos no es una potencia de 2");
+    }
+}
+
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -149,6 +159,14 @@ int main(int argc, char **argv)
     else
     {
         sizeInputArray = atoi(argv[1]);
+    }
+
+    // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
+    try {
+        checkNodeCountAndArraySize(nodeCount, sizeInputArray);
+    } catch (std::invalid_argument& e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
     }
 
     // Defino el arreglo inicial
