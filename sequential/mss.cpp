@@ -7,12 +7,14 @@ Trabajo Final Integrador - Versión secuencial de Merge Sort
 - Fecha: 16/05/2024
 - Etapa: Versión Secuencial y Análisis de Paralelización
 - Compilación:
-    $ gcc -o [nombre_ejecutable] mss.cpp
-    $ gcc -o mss mss.cpp
+    $ g++ -o [nombre_ejecutable] mss.cpp
+    $ g++ -o mss mss.cpp
 - Ejecución:
     $ ./mss
 */
 
+#include <stdexcept>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -89,10 +91,48 @@ void printArray(int array[], int size){
     printf("]\n");
 }
 
-int main(){
+int *initRandomNums(int size)
+{
+    int *randomArray = (int *)malloc(sizeof(int) * size);
+    int i;
+    for (i = 0; i < size; i++)
+    {
+        randomArray[i] = ((((i + 1) * 3) % size) + 1) * 2;
+    }
+    return randomArray;
+}
 
-    int inputArray[] = {6,13,8,5,4,9,11};
-    int sizeInputArray = sizeof(inputArray) / sizeof(inputArray[0]); // 20bytes:4bytes = 5
+void checkArraySize(int arraySize) {
+    // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
+    if (arraySize % 2 != 0) {
+        throw std::invalid_argument("ERROR: el tamaño del array no es par");
+    }
+}
+
+int main(int argc, char **argv){
+
+    int sizeInputArray;
+    // Define el tamaño del arreglo inicial en función del argumento
+    if (argv[1] == NULL)
+    {
+        sizeInputArray = 16;
+    }
+    else
+    {
+        sizeInputArray = atoi(argv[1]);
+    }
+
+    // Acá chequeo que no se hayan ingresado array de longitudes impares
+    try {
+        checkArraySize(sizeInputArray);
+    } catch (std::invalid_argument& e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+
+    // Crea un array "random" con el tamaño especificado por el usuario
+    int *inputArray;
+    inputArray = initRandomNums(sizeInputArray);
 
     printArray(inputArray,sizeInputArray);
     mergeSort(inputArray,0,sizeInputArray - 1);
