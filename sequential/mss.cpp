@@ -7,12 +7,14 @@ Trabajo Final Integrador - Versión secuencial de Merge Sort
 - Fecha: 16/05/2024
 - Etapa: Versión Secuencial y Análisis de Paralelización
 - Compilación:
-    $ gcc -o [nombre_ejecutable] mss.cpp
-    $ gcc -o mss mss.cpp
+    $ g++ -o [nombre_ejecutable] mss.cpp
+    $ g++ -o mss mss.cpp
 - Ejecución:
     $ ./mss
 */
 
+#include <stdexcept>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -100,6 +102,13 @@ int *initRandomNums(int size)
     return randomArray;
 }
 
+void checkArraySize(int arraySize) {
+    // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
+    if (arraySize % 2 != 0) {
+        throw std::invalid_argument("ERROR: el tamaño del array no es par");
+    }
+}
+
 int main(int argc, char **argv){
 
     int sizeInputArray;
@@ -112,6 +121,15 @@ int main(int argc, char **argv){
     {
         sizeInputArray = atoi(argv[1]);
     }
+
+    // Acá chequeo que no se hayan ingresado array de longitudes impares
+    try {
+        checkArraySize(sizeInputArray);
+    } catch (std::invalid_argument& e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+
     // Crea un array "random" con el tamaño especificado por el usuario
     int *inputArray;
     inputArray = initRandomNums(sizeInputArray);
