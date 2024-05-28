@@ -20,7 +20,8 @@ Trabajo Final Integrador - Versión secuencial de Merge Sort
 #include <time.h>
 #include <array>
 
-void merge(int array[], int begin, int mid, int end){
+void merge(int array[], int begin, int mid, int end)
+{
     // Obtengo tamaño de subarreglos izq y der
     int sizeLeftArray = mid - begin + 1;
     int sizeRightArray = end - mid;
@@ -28,65 +29,83 @@ void merge(int array[], int begin, int mid, int end){
     int leftArray[sizeLeftArray];
     int rightArray[sizeRightArray];
 
-    // Copio el contenido del arreglo en el subarreglo izq 
-    for (int i=0;i<sizeLeftArray;i++){
+    // Copio el contenido del arreglo en el subarreglo izq
+    for (int i = 0; i < sizeLeftArray; i++)
+    {
         leftArray[i] = array[begin + i];
     }
 
-    // Copio el contenido del arreglo en el subarreglo der 
-    for (int j=0;j<sizeRightArray;j++){
+    // Copio el contenido del arreglo en el subarreglo der
+    for (int j = 0; j < sizeRightArray; j++)
+    {
         rightArray[j] = array[mid + 1 + j];
     }
 
-    int leftIndex = 0; int rightIndex = 0; int arrayIndex = begin;
-    int actualLeftNum; int actualRightNum;
+    int leftIndex = 0;
+    int rightIndex = 0;
+    int arrayIndex = begin;
+    int actualLeftNum;
+    int actualRightNum;
 
-    while (leftIndex < sizeLeftArray && rightIndex < sizeRightArray) {
+    while (leftIndex < sizeLeftArray && rightIndex < sizeRightArray)
+    {
         actualLeftNum = leftArray[leftIndex];
         actualRightNum = rightArray[rightIndex];
-        if (actualLeftNum <= actualRightNum) {
+        if (actualLeftNum <= actualRightNum)
+        {
             array[arrayIndex] = actualLeftNum;
             leftIndex++;
-        } else {
+        }
+        else
+        {
             array[arrayIndex] = actualRightNum;
             rightIndex++;
         }
         arrayIndex++;
     }
 
-    if (leftIndex >= sizeLeftArray) {
+    if (leftIndex >= sizeLeftArray)
+    {
         while (rightIndex < sizeRightArray)
         {
             array[arrayIndex] = rightArray[rightIndex];
-            rightIndex++; arrayIndex++;
+            rightIndex++;
+            arrayIndex++;
         }
-    } else {
+    }
+    else
+    {
         while (leftIndex < sizeLeftArray)
         {
             array[arrayIndex] = leftArray[leftIndex];
-            leftIndex++; arrayIndex++;
+            leftIndex++;
+            arrayIndex++;
         }
     }
 }
 
-void mergeSort(int array[],int begin, int end){
+void mergeSort(int array[], int begin, int end)
+{
 
     // Caso base
-    if (begin == end) {
+    if (begin == end)
+    {
         return;
     }
-    
+
     // Caso recursivo
     int mid = (begin + end) / 2;
-    mergeSort(array,begin,mid);
-    mergeSort(array,mid + 1, end);
-    merge(array,begin,mid,end);
+    mergeSort(array, begin, mid);
+    mergeSort(array, mid + 1, end);
+    merge(array, begin, mid, end);
 }
 
-void printArray(int array[], int size){
+void printArray(int array[], int size)
+{
     printf("[ ");
-    for (int i=0;i<size;i++){
-        printf("%d ",array[i]);
+    for (int i = 0; i < size; i++)
+    {
+        printf("%d ", array[i]);
     }
     printf("]\n");
 }
@@ -102,14 +121,17 @@ int *initRandomNums(int size)
     return randomArray;
 }
 
-void checkArraySize(int arraySize) {
+void checkArraySize(int arraySize)
+{
     // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
-    if (arraySize % 2 != 0) {
+    if (arraySize % 2 != 0)
+    {
         throw std::invalid_argument("ERROR: el tamaño del array no es par");
     }
 }
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
 
     int sizeInputArray;
     // Define el tamaño del arreglo inicial en función del argumento
@@ -123,9 +145,12 @@ int main(int argc, char **argv){
     }
 
     // Acá chequeo que no se hayan ingresado array de longitudes impares
-    try {
+    try
+    {
         checkArraySize(sizeInputArray);
-    } catch (std::invalid_argument& e) {
+    }
+    catch (std::invalid_argument &e)
+    {
         std::cerr << e.what() << std::endl;
         return -1;
     }
@@ -134,9 +159,16 @@ int main(int argc, char **argv){
     int *inputArray;
     inputArray = initRandomNums(sizeInputArray);
 
-    printArray(inputArray,sizeInputArray);
-    mergeSort(inputArray,0,sizeInputArray - 1);
-    printArray(inputArray,sizeInputArray);
+    int print = (atoi(argv[2]) == 1);
+    if (print)
+    {
+        printArray(inputArray, sizeInputArray);
+    }
+    mergeSort(inputArray, 0, sizeInputArray - 1);
+    if (print)
+    {
+        printArray(inputArray, sizeInputArray);
+    }
 
     return 0;
 }

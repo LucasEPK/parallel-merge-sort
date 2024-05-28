@@ -17,6 +17,8 @@ Trabajo Final Integrador - Versión Paralela de Merge Sort
 #include <array>
 #include <math.h>
 #include <mpi.h>
+#include <stdexcept>
+#include <iostream>
 
 void merge(int array[], int begin, int mid, int end)
 {
