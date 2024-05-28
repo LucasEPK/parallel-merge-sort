@@ -159,7 +159,7 @@ void checkIfOrdered(int array[], int size)
 
 int main(int argc, char **argv)
 {
-    time_t start, end;
+    clock_t start, end;
 
     int sizeInputArray;
     // Define el tamaño del arreglo inicial en función del argumento
@@ -193,10 +193,10 @@ int main(int argc, char **argv)
         printArray(inputArray, sizeInputArray);
         checkIfOrdered(inputArray, sizeInputArray);
     }
-    time(&start);
+    start = clock();
     mergeSort(inputArray, 0, sizeInputArray - 1);
-    time(&end);
-    double time_taken = double(end - start);
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
     std::cout << "Tiempo de ejecución: " << std::fixed << std::setprecision(2) << time_taken ;
     std::cout << "s" << std::endl;
     if (print)
