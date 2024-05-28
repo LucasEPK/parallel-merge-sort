@@ -133,6 +133,29 @@ void checkArraySize(int arraySize)
     }
 }
 
+void checkIfOrdered(int array[], int size)
+{
+    int ordered = 1;
+
+    for (int i = 1; i < size; i++)
+    {
+        if (array[i] < array[i - 1])
+        {
+            ordered = 0;
+            break;
+        }
+    }
+
+    if (ordered)
+    {
+        printf("Arreglo ordenado: VERDADERO\n");
+    }
+    else
+    {
+        printf("Arreglo ordenado: FALSO\n");
+    }
+}
+
 int main(int argc, char **argv)
 {
 
@@ -166,12 +189,14 @@ int main(int argc, char **argv)
     if (print)
     {
         printArray(inputArray, sizeInputArray);
+        checkIfOrdered(inputArray, sizeInputArray);
     }
     mergeSort(inputArray, 0, sizeInputArray - 1);
     if (print)
     {
         printArray(inputArray, sizeInputArray);
     }
+    checkIfOrdered(inputArray,sizeInputArray);
 
     return 0;
 }
