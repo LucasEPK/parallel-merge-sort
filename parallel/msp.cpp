@@ -201,6 +201,8 @@ int main(int argc, char **argv)
         }
     }
 
+    double start = MPI_Wtime();
+
     subarraySize = sizeInputArray / nodeCount;
     subArray = (int *)malloc(sizeof(int) * subarraySize);
 
@@ -230,10 +232,11 @@ int main(int argc, char **argv)
             // Ahora concatenamos el array recibido y el subarray que ordenamos
             arrayResult = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
             concatenateArrays(subArray, recvArray, arrayResult, currentSubarraySize); // concatenamos los primeros dos arrays
+            delete[] recvArray;
 
             merge(arrayResult, 0, currentSubarraySize - 1, currentSubarraySize * 2 - 1);
 
-            subArray = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
+            // subArray = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
             // Se sobreescribe el subarreglo para utilizarlo en la próxima iteración
             subArray = arrayResult;
         }
@@ -242,6 +245,7 @@ int main(int argc, char **argv)
             // Nodo que envia el array al otro proceso
             rankDest = rank - (int)pow(2, actualLevel);
             MPI_Send(subArray, currentSubarraySize, MPI_INT, rankDest, 0, MPI_COMM_WORLD);
+            delete[] subArray;
             isFinished = true;
         }
 
@@ -253,10 +257,16 @@ int main(int argc, char **argv)
         currentSubarraySize *= 2; // tamaño del buffer actual
     }
 
-    if (rank == 0 && printFlag)
+    double end = MPI_Wtime();
+
+    if (rank == 0)
     {
-        printf("\nEl resultado final es:\n");
-        printArray(subArray, currentSubarraySize);
+        printf("Tiempo total: %.5fs\n", (end - start));
+        if (printFlag)
+        {
+            printf("\nEl resultado final es:\n");
+            printArray(subArray, currentSubarraySize);
+        }
     }
 
     MPI_Finalize();
