@@ -19,6 +19,7 @@ Trabajo Final Integrador - Versión secuencial de Merge Sort
 #include <stdlib.h>
 #include <time.h>
 #include <array>
+#include <iomanip>
 
 void merge(int array[], int begin, int mid, int end)
 {
@@ -158,6 +159,7 @@ void checkIfOrdered(int array[], int size)
 
 int main(int argc, char **argv)
 {
+    time_t start, end;
 
     int sizeInputArray;
     // Define el tamaño del arreglo inicial en función del argumento
@@ -191,7 +193,12 @@ int main(int argc, char **argv)
         printArray(inputArray, sizeInputArray);
         checkIfOrdered(inputArray, sizeInputArray);
     }
+    time(&start);
     mergeSort(inputArray, 0, sizeInputArray - 1);
+    time(&end);
+    double time_taken = double(end - start);
+    std::cout << "Tiempo de ejecución: " << std::fixed << std::setprecision(2) << time_taken ;
+    std::cout << "s" << std::endl;
     if (print)
     {
         printArray(inputArray, sizeInputArray);
