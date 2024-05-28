@@ -232,6 +232,8 @@ int main(int argc, char **argv)
 
     MPI_Scatter(inputArray, subarraySize, MPI_INT, subArray, subarraySize, MPI_INT, 0, MPI_COMM_WORLD);
 
+    delete[] inputArray;
+
     mergeSort(subArray, 0, subarraySize - 1);
 
     // Cantidad de iteraciones de la última etapa
