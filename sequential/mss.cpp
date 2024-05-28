@@ -26,8 +26,8 @@ void merge(int array[], int begin, int mid, int end)
     int sizeLeftArray = mid - begin + 1;
     int sizeRightArray = end - mid;
 
-    int leftArray[sizeLeftArray];
-    int rightArray[sizeRightArray];
+    int *leftArray = new int[sizeLeftArray];
+    int *rightArray = new int[sizeRightArray];
 
     // Copio el contenido del arreglo en el subarreglo izq
     for (int i = 0; i < sizeLeftArray; i++)
@@ -82,6 +82,9 @@ void merge(int array[], int begin, int mid, int end)
             arrayIndex++;
         }
     }
+
+    delete[] leftArray;
+    delete[] rightArray;
 }
 
 void mergeSort(int array[], int begin, int end)

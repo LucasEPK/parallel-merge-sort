@@ -26,8 +26,8 @@ void merge(int array[], int begin, int mid, int end)
     int sizeLeftArray = mid - begin + 1;
     int sizeRightArray = end - mid;
 
-    int leftArray[sizeLeftArray];
-    int rightArray[sizeRightArray];
+    int *leftArray = new int[sizeLeftArray];
+    int *rightArray = new int[sizeRightArray];
 
     // Copio el contenido del arreglo en el subarreglo izq
     for (int i = 0; i < sizeLeftArray; i++)
@@ -82,6 +82,9 @@ void merge(int array[], int begin, int mid, int end)
             arrayIndex++;
         }
     }
+
+    delete[] leftArray;
+    delete[] rightArray;
 }
 
 void mergeSort(int array[], int begin, int end)
@@ -131,18 +134,25 @@ void concatenateArrays(int array1[], int array2[], int arrayResult[], int size)
     }
 }
 
-void checkNodeCountAndArraySize(int nodeCount, int arraySize) {
+void checkNodeCountAndArraySize(int nodeCount, int arraySize)
+{
     // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
     bool nodesArePowOf2 = trunc(log2((double)nodeCount)) == log2((double)nodeCount);
-    if (arraySize % 2 != 0) {
+    if (arraySize % 2 != 0)
+    {
         throw std::invalid_argument("ERROR: el tamaño del array no es par");
-    } else if (!nodesArePowOf2) {
+    }
+    else if (!nodesArePowOf2)
+    {
         throw std::invalid_argument("ERROR: la cantidad de nodos no es una potencia de 2");
     }
 }
 
 int main(int argc, char **argv)
 {
+
+    int printFlag = atoi(argv[2]);
+
     MPI_Init(&argc, &argv);
 
     int rank;
@@ -164,9 +174,12 @@ int main(int argc, char **argv)
     }
 
     // Acá chequeo que no se hayan ingresado array de longitudes impares y una cantidad de nodos no exponencial de 2
-    try {
+    try
+    {
         checkNodeCountAndArraySize(nodeCount, sizeInputArray);
-    } catch (std::invalid_argument& e) {
+    }
+    catch (std::invalid_argument &e)
+    {
         std::cerr << e.what() << std::endl;
         return -1;
     }
@@ -181,11 +194,13 @@ int main(int argc, char **argv)
     {
         // Lleno con valores el arreglo inicial
         inputArray = initRandomNums(sizeInputArray);
-        printf("El arreglo global es: ");
-        printArray(inputArray, sizeInputArray);
+        if (printFlag)
+        {
+            printf("El arreglo global es: ");
+            printArray(inputArray, sizeInputArray);
+        }
     }
 
-    
     subarraySize = sizeInputArray / nodeCount;
     subArray = (int *)malloc(sizeof(int) * subarraySize);
 
@@ -197,7 +212,6 @@ int main(int argc, char **argv)
     int totalLevels = round(log2(nodeCount));
     int actualLevel = 0;
 
-
     int currentSubarraySize = subarraySize;
     int *recvArray;
     int *arrayResult;
@@ -208,7 +222,7 @@ int main(int argc, char **argv)
     while (!isFinished)
     {
         if (rank % (int)pow(2, actualLevel + 1) == 0)
-        {                                                                  // Nodo que recibe el array del otro proceso
+        {                                                                 // Nodo que recibe el array del otro proceso
             recvArray = (int *)malloc(currentSubarraySize * sizeof(int)); // Acá asignamos el tamaño al array
             rankSource = rank + (int)pow(2, actualLevel);
             MPI_Recv(recvArray, currentSubarraySize, MPI_INT, rankSource, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -224,7 +238,7 @@ int main(int argc, char **argv)
             subArray = arrayResult;
         }
         else
-        { 
+        {
             // Nodo que envia el array al otro proceso
             rankDest = rank - (int)pow(2, actualLevel);
             MPI_Send(subArray, currentSubarraySize, MPI_INT, rankDest, 0, MPI_COMM_WORLD);
@@ -239,7 +253,7 @@ int main(int argc, char **argv)
         currentSubarraySize *= 2; // tamaño del buffer actual
     }
 
-    if (rank == 0)
+    if (rank == 0 && printFlag)
     {
         printf("\nEl resultado final es:\n");
         printArray(subArray, currentSubarraySize);
