@@ -148,6 +148,29 @@ void checkNodeCountAndArraySize(int nodeCount, int arraySize)
     }
 }
 
+void checkIfOrdered(int array[], int size)
+{
+    int ordered = 1;
+
+    for (int i = 1; i < size; i++)
+    {
+        if (array[i] < array[i - 1])
+        {
+            ordered = 0;
+            break;
+        }
+    }
+
+    if (ordered)
+    {
+        printf("Arreglo ordenado: VERDADERO\n");
+    }
+    else
+    {
+        printf("Arreglo ordenado: FALSO\n");
+    }
+}
+
 int main(int argc, char **argv)
 {
 
@@ -198,6 +221,7 @@ int main(int argc, char **argv)
         {
             printf("El arreglo global es: ");
             printArray(inputArray, sizeInputArray);
+            checkIfOrdered(inputArray, sizeInputArray);
         }
     }
 
@@ -261,12 +285,14 @@ int main(int argc, char **argv)
 
     if (rank == 0)
     {
-        printf("Tiempo total: %.5fs\n", (end - start));
+
         if (printFlag)
         {
-            printf("\nEl resultado final es:\n");
+            printf("\nEl resultado final es: ");
             printArray(subArray, currentSubarraySize);
         }
+        checkIfOrdered(subArray, subarraySize);
+        printf("\nTiempo total: %.5fs\n", (end - start));
     }
 
     MPI_Finalize();
