@@ -9,7 +9,7 @@ Trabajo Final Integrador - Versión Paralela de Merge Sort
 - Compilación:
     $ mpic++ -o msp.out msp.cpp
 - Ejecución:
-    $ mpirun -np 4 ./msp.out
+    $ mpirun -np 4 ./msp.out [cantidad de nodos] [1: Imprimir arreglos | 0: No imprimir arreglos]
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,7 +232,10 @@ int main(int argc, char **argv)
 
     MPI_Scatter(inputArray, subarraySize, MPI_INT, subArray, subarraySize, MPI_INT, 0, MPI_COMM_WORLD);
 
-    delete[] inputArray;
+    if (rank == 0)
+    {
+        free(inputArray);
+    }
 
     mergeSort(subArray, 0, subarraySize - 1);
 
@@ -258,9 +261,10 @@ int main(int argc, char **argv)
             // Ahora concatenamos el array recibido y el subarray que ordenamos
             arrayResult = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
             concatenateArrays(subArray, recvArray, arrayResult, currentSubarraySize); // concatenamos los primeros dos arrays
-            delete[] recvArray;
+            free(recvArray);
 
             merge(arrayResult, 0, currentSubarraySize - 1, currentSubarraySize * 2 - 1);
+            free(subArray);
 
             // subArray = (int *)malloc(currentSubarraySize * 2 * sizeof(int));
             // Se sobreescribe el subarreglo para utilizarlo en la próxima iteración
@@ -271,7 +275,7 @@ int main(int argc, char **argv)
             // Nodo que envia el array al otro proceso
             rankDest = rank - (int)pow(2, actualLevel);
             MPI_Send(subArray, currentSubarraySize, MPI_INT, rankDest, 0, MPI_COMM_WORLD);
-            delete[] subArray;
+            free(subArray);
             isFinished = true;
         }
 
