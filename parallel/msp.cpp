@@ -5,11 +5,11 @@ Trabajo Final Integrador - Versión Paralela de Merge Sort
     - Yornet de Rosas, Agustín
 - Asignatura: Programación Paralela y Distribuida 2024
 - Fecha: 23/05/2024
-- Etapa: Diseño y Desarrollo de la Versión Paralelo/Distribuida
+- Etapa: Trabajo Final Integrador
 - Compilación:
     $ mpic++ -o msp.out msp.cpp
 - Ejecución:
-    $ mpirun -np 4 ./msp.out
+    $ mpirun -np 4 ./msp.out [longitud_de_arreglo] [1: imprimir arreglos | 0: no imprimir]
 */
 #include <stdio.h>
 #include <stdlib.h>
