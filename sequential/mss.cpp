@@ -5,10 +5,10 @@ Trabajo Final Integrador - Versión secuencial de Merge Sort
     - Yornet de Rosas, Agustín
 - Asignatura: Programación Paralela y Distribuida 2024
 - Fecha: 16/05/2024
-- Etapa: Versión Secuencial y Análisis de Paralelización
+- Etapa: Trabajo Final Integrador
 - Compilación:
     $ g++ -o [nombre_ejecutable] mss.cpp
-    $ g++ -o mss mss.cpp
+    $ g++ -o mss mss.cpp [longitud_de_arreglo] [1: imprimir arreglos | 0: no imprimir arreglos]
 - Ejecución:
     $ ./mss
 */
